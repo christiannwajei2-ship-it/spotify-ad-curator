@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { label: 'Ad Generator', step: 'ad-generator', icon: '📢', requiresAnalysis: true },
   { label: 'Analytics', step: 'analytics', icon: '📈' },
   { label: 'Scheduler', step: 'scheduler', icon: '⏰' },
+  { label: 'Reels Studio', step: 'reels-studio', icon: '🎬' },
   { label: 'History', step: 'history', icon: '📋' },
   { label: 'Pricing', step: 'pricing', icon: '💳' },
 ];

@@ -10,6 +10,7 @@ import { History } from './pages/History';
 import { Analytics } from './pages/Analytics';
 import { Pricing } from './pages/Pricing';
 import { Scheduler } from './pages/Scheduler';
+import { ReelsStudio } from './pages/ReelsStudio';
 
 function App() {
   const { currentStep, isLoading } = useAppStore();
@@ -33,6 +34,8 @@ function App() {
         return <Pricing />;
       case 'scheduler':
         return <Scheduler />;
+      case 'reels-studio':
+        return <ReelsStudio />;
       default:
         return <Landing />;
     }
