@@ -3,21 +3,26 @@ import { motion } from 'framer-motion';
 import { useAppStore } from '../store';
 import { useAdGenerator } from '../hooks/useAdGenerator';
 import { useTikTokAds } from '../hooks/useTikTokAds';
+import { useYouTubeAds } from '../hooks/useYouTubeAds';
 import { Button, Card, CardHeader, Badge } from '../components/ui';
 import { AdTemplate } from '../components/ads/AdTemplate';
 import { TikTokAdPreview } from '../components/ads/TikTokAdPreview';
 import { TikTokCampaignBuilder } from '../components/ads/TikTokCampaignBuilder';
+import { YouTubeAdPreview } from '../components/ads/YouTubeAdPreview';
+import { YouTubeCampaignBuilder } from '../components/ads/YouTubeCampaignBuilder';
 import { copyToClipboard, downloadJson } from '../utils/helpers';
 import toast from 'react-hot-toast';
 
-type AdPlatform = 'meta' | 'tiktok';
+type AdPlatform = 'meta' | 'tiktok' | 'youtube';
 
 export const AdGenerator = () => {
   const { currentCampaign, analysis, setStep } = useAppStore();
   const { save } = useAdGenerator();
   const { tikTokCampaign, setTikTokCampaign, generate: generateTikTok, isLoading: tikTokLoading } = useTikTokAds();
+  const { youtubeCampaign, setYouTubeCampaign, generate: generateYouTube, isLoading: youtubeLoading } = useYouTubeAds();
   const [activePlatform, setActivePlatform] = useState<AdPlatform>('meta');
   const [tikTokBudget, setTikTokBudget] = useState(5);
+  const [youtubeBudget, setYoutubeBudget] = useState(5);
 
   if (!currentCampaign || !analysis) {
     return (
@@ -62,6 +67,26 @@ export const AdGenerator = () => {
     }
   };
 
+  const handleCopyYouTubeJson = async () => {
+    if (!youtubeCampaign) return;
+    const ok = await copyToClipboard(JSON.stringify(youtubeCampaign.youtubeApiPayload ?? youtubeCampaign, null, 2));
+    if (ok) toast.success('YouTube campaign JSON copied! 📋');
+    else toast.error('Copy failed');
+  };
+
+  const handleExportYouTubeJson = () => {
+    if (!youtubeCampaign) return;
+    downloadJson(youtubeCampaign.youtubeApiPayload ?? youtubeCampaign, `youtube-campaign-${Date.now()}.json`);
+    toast.success('YouTube campaign exported! 📥');
+  };
+
+  const handleYouTubeBudgetChange = (budget: number) => {
+    setYoutubeBudget(budget);
+    if (youtubeCampaign) {
+      setYouTubeCampaign({ ...youtubeCampaign, dailyBudget: budget });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-surface py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,7 +107,7 @@ export const AdGenerator = () => {
                 <Button variant="secondary" onClick={handleExportMetaJson}>📥 Export JSON</Button>
                 <Button onClick={() => { save(); setStep('history'); }}>💾 Save Campaign</Button>
               </>
-            ) : (
+            ) : activePlatform === 'tiktok' ? (
               <>
                 {tikTokCampaign && (
                   <>
@@ -96,6 +121,20 @@ export const AdGenerator = () => {
                   </Button>
                 )}
               </>
+            ) : (
+              <>
+                {youtubeCampaign && (
+                  <>
+                    <Button variant="secondary" onClick={handleCopyYouTubeJson}>📋 Copy JSON</Button>
+                    <Button variant="secondary" onClick={handleExportYouTubeJson}>📥 Export JSON</Button>
+                  </>
+                )}
+                {!youtubeCampaign && (
+                  <Button onClick={() => generateYouTube(youtubeBudget)} isLoading={youtubeLoading}>
+                    📺 Generate YouTube Campaign
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </motion.div>
@@ -106,6 +145,7 @@ export const AdGenerator = () => {
             [
               { id: 'meta', label: '📘 Meta Ads', desc: 'Facebook & Instagram' },
               { id: 'tiktok', label: '📱 TikTok Ads', desc: 'Short-form video' },
+              { id: 'youtube', label: '📺 YouTube Ads', desc: 'Video campaigns' },
             ] as { id: AdPlatform; label: string; desc: string }[]
           ).map((tab) => (
             <button
@@ -300,6 +340,83 @@ export const AdGenerator = () => {
                   />
                   <pre className="bg-surface rounded-xl border border-surface-border p-4 overflow-auto text-xs text-gray-300 max-h-96 font-mono">
                     {JSON.stringify(tikTokCampaign.tiktokApiPayload, null, 2)}
+                  </pre>
+                </Card>
+              </>
+            )}
+          </>
+        )}
+
+        {/* ======================== YOUTUBE ADS TAB ======================== */}
+        {activePlatform === 'youtube' && (
+          <>
+            {!youtubeCampaign ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+              >
+                <p className="text-5xl mb-4">📺</p>
+                <h2 className="text-xl font-bold text-white mb-2">Generate Your YouTube Campaign</h2>
+                <p className="text-gray-400 text-sm mb-6 max-w-md">
+                  Auto-generate YouTube video ad campaigns (In-stream, In-feed &amp; Shorts) optimised for
+                  music lovers, based on your Spotify playlist analysis.
+                </p>
+                <Button onClick={() => generateYouTube(youtubeBudget)} isLoading={youtubeLoading} size="lg">
+                  📺 Generate YouTube Campaign
+                </Button>
+              </motion.div>
+            ) : (
+              <>
+                <YouTubeCampaignBuilder
+                  campaign={youtubeCampaign}
+                  onBudgetChange={handleYouTubeBudgetChange}
+                  onExport={handleExportYouTubeJson}
+                  onCopy={handleCopyYouTubeJson}
+                  isLoading={youtubeLoading}
+                />
+
+                {/* YouTube Ad Creatives */}
+                <div className="mt-8 mb-8">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h2 className="text-xl font-bold text-white">YouTube Ad Creatives</h2>
+                      <p className="text-sm text-gray-400 mt-0.5">
+                        {youtubeCampaign.adGroups.reduce((n, ag) => n + ag.ads.length, 0)} templates — In-stream, In-feed &amp; Shorts
+                      </p>
+                    </div>
+                    <Badge variant="green" className="hidden sm:flex">
+                      A/B Test Ready
+                    </Badge>
+                  </div>
+                  <div className="space-y-5">
+                    {youtubeCampaign.adGroups.flatMap((ag) =>
+                      ag.ads.map((ad) => (
+                        <YouTubeAdPreview
+                          key={ad.creative.id}
+                          template={ad.creative}
+                          playlistImageUrl={analysis.playlist.imageUrl}
+                          playlistName={analysis.playlist.name}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* YouTube API Payload */}
+                <Card>
+                  <CardHeader
+                    title="Google Ads API Payload"
+                    subtitle="Ready-to-use JSON for Google Ads API (YouTube campaigns)"
+                    icon={<span>🔧</span>}
+                    action={
+                      <Button size="sm" variant="secondary" onClick={handleCopyYouTubeJson}>
+                        📋 Copy All
+                      </Button>
+                    }
+                  />
+                  <pre className="bg-surface rounded-xl border border-surface-border p-4 overflow-auto text-xs text-gray-300 max-h-96 font-mono">
+                    {JSON.stringify(youtubeCampaign.youtubeApiPayload, null, 2)}
                   </pre>
                 </Card>
               </>
