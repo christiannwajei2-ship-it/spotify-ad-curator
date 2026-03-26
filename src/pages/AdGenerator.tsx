@@ -4,25 +4,30 @@ import { useAppStore } from '../store';
 import { useAdGenerator } from '../hooks/useAdGenerator';
 import { useTikTokAds } from '../hooks/useTikTokAds';
 import { useYouTubeAds } from '../hooks/useYouTubeAds';
+import { useGoogleAds } from '../hooks/useGoogleAds';
 import { Button, Card, CardHeader, Badge } from '../components/ui';
 import { AdTemplate } from '../components/ads/AdTemplate';
 import { TikTokAdPreview } from '../components/ads/TikTokAdPreview';
 import { TikTokCampaignBuilder } from '../components/ads/TikTokCampaignBuilder';
 import { YouTubeAdPreview } from '../components/ads/YouTubeAdPreview';
 import { YouTubeCampaignBuilder } from '../components/ads/YouTubeCampaignBuilder';
+import { GoogleSearchAdPreview, GoogleDisplayAdPreview } from '../components/ads/GoogleAdPreview';
+import { GoogleCampaignBuilder } from '../components/ads/GoogleCampaignBuilder';
 import { copyToClipboard, downloadJson } from '../utils/helpers';
 import toast from 'react-hot-toast';
 
-type AdPlatform = 'meta' | 'tiktok' | 'youtube';
+type AdPlatform = 'meta' | 'tiktok' | 'youtube' | 'google';
 
 export const AdGenerator = () => {
   const { currentCampaign, analysis, setStep } = useAppStore();
   const { save } = useAdGenerator();
   const { tikTokCampaign, setTikTokCampaign, generate: generateTikTok, isLoading: tikTokLoading } = useTikTokAds();
   const { youtubeCampaign, setYouTubeCampaign, generate: generateYouTube, isLoading: youtubeLoading } = useYouTubeAds();
+  const { googleCampaign, setGoogleCampaign, generate: generateGoogle, isLoading: googleLoading } = useGoogleAds();
   const [activePlatform, setActivePlatform] = useState<AdPlatform>('meta');
   const [tikTokBudget, setTikTokBudget] = useState(5);
   const [youtubeBudget, setYoutubeBudget] = useState(5);
+  const [googleBudget, setGoogleBudget] = useState(3);
 
   if (!currentCampaign || !analysis) {
     return (
@@ -87,6 +92,26 @@ export const AdGenerator = () => {
     }
   };
 
+  const handleCopyGoogleJson = async () => {
+    if (!googleCampaign) return;
+    const ok = await copyToClipboard(JSON.stringify(googleCampaign.googleAdsApiPayload ?? googleCampaign, null, 2));
+    if (ok) toast.success('Google campaign JSON copied! 📋');
+    else toast.error('Copy failed');
+  };
+
+  const handleExportGoogleJson = () => {
+    if (!googleCampaign) return;
+    downloadJson(googleCampaign.googleAdsApiPayload ?? googleCampaign, `google-campaign-${Date.now()}.json`);
+    toast.success('Google campaign exported! 📥');
+  };
+
+  const handleGoogleBudgetChange = (budget: number) => {
+    setGoogleBudget(budget);
+    if (googleCampaign) {
+      setGoogleCampaign({ ...googleCampaign, dailyBudget: budget });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-surface py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,7 +146,7 @@ export const AdGenerator = () => {
                   </Button>
                 )}
               </>
-            ) : (
+            ) : activePlatform === 'youtube' ? (
               <>
                 {youtubeCampaign && (
                   <>
@@ -135,6 +160,20 @@ export const AdGenerator = () => {
                   </Button>
                 )}
               </>
+            ) : (
+              <>
+                {googleCampaign && (
+                  <>
+                    <Button variant="secondary" onClick={handleCopyGoogleJson}>📋 Copy JSON</Button>
+                    <Button variant="secondary" onClick={handleExportGoogleJson}>📥 Export JSON</Button>
+                  </>
+                )}
+                {!googleCampaign && (
+                  <Button onClick={() => generateGoogle(googleBudget)} isLoading={googleLoading}>
+                    🔍 Generate Google Campaign
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </motion.div>
@@ -142,10 +181,11 @@ export const AdGenerator = () => {
         {/* Platform Tabs */}
         <div className="flex gap-2 mb-8 border-b border-surface-border pb-4">
           {(
-            [
+          [
               { id: 'meta', label: '📘 Meta Ads', desc: 'Facebook & Instagram' },
               { id: 'tiktok', label: '📱 TikTok Ads', desc: 'Short-form video' },
               { id: 'youtube', label: '📺 YouTube Ads', desc: 'Video campaigns' },
+              { id: 'google', label: '🔍 Google Ads', desc: 'Search & Display' },
             ] as { id: AdPlatform; label: string; desc: string }[]
           ).map((tab) => (
             <button
@@ -417,6 +457,121 @@ export const AdGenerator = () => {
                   />
                   <pre className="bg-surface rounded-xl border border-surface-border p-4 overflow-auto text-xs text-gray-300 max-h-96 font-mono">
                     {JSON.stringify(youtubeCampaign.youtubeApiPayload, null, 2)}
+                  </pre>
+                </Card>
+              </>
+            )}
+          </>
+        )}
+
+        {/* ======================== GOOGLE ADS TAB ======================== */}
+        {activePlatform === 'google' && (
+          <>
+            {!googleCampaign ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+              >
+                <p className="text-5xl mb-4">🔍</p>
+                <h2 className="text-xl font-bold text-white mb-2">Generate Your Google Campaign</h2>
+                <p className="text-gray-400 text-sm mb-6 max-w-md">
+                  Auto-generate Google Search &amp; Display ad campaigns targeting genre keywords and
+                  music lovers on the web, based on your Spotify playlist analysis.
+                </p>
+                <Button onClick={() => generateGoogle(googleBudget)} isLoading={googleLoading} size="lg">
+                  🔍 Generate Google Campaign
+                </Button>
+              </motion.div>
+            ) : (
+              <>
+                <GoogleCampaignBuilder
+                  campaign={googleCampaign}
+                  onBudgetChange={handleGoogleBudgetChange}
+                  onExport={handleExportGoogleJson}
+                  onCopy={handleCopyGoogleJson}
+                  isLoading={googleLoading}
+                />
+
+                {/* Google Search Creatives */}
+                {(() => {
+                  const searchGroup = googleCampaign.adGroups.find((ag) => ag.campaignType === 'SEARCH');
+                  if (!searchGroup) return null;
+                  return (
+                    <div className="mt-8 mb-8">
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Search Ad Creatives</h2>
+                          <p className="text-sm text-gray-400 mt-0.5">
+                            {searchGroup.ads.length} responsive search ads — keyword-targeted
+                          </p>
+                        </div>
+                        <Badge variant="green" className="hidden sm:flex">
+                          A/B Test Ready
+                        </Badge>
+                      </div>
+                      <div className="space-y-5">
+                        {searchGroup.ads.map((ad) =>
+                          ad.searchCreative ? (
+                            <GoogleSearchAdPreview
+                              key={ad.searchCreative.id}
+                              template={ad.searchCreative}
+                              playlistName={analysis.playlist.name}
+                            />
+                          ) : null
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Google Display Creatives */}
+                {(() => {
+                  const displayGroup = googleCampaign.adGroups.find((ag) => ag.campaignType === 'DISPLAY');
+                  if (!displayGroup) return null;
+                  return (
+                    <div className="mt-8 mb-8">
+                      <div className="flex items-center justify-between mb-5">
+                        <div>
+                          <h2 className="text-xl font-bold text-white">Display Ad Creatives</h2>
+                          <p className="text-sm text-gray-400 mt-0.5">
+                            {displayGroup.ads.length} responsive display ads — music blogs &amp; entertainment sites
+                          </p>
+                        </div>
+                        <Badge variant="purple" className="hidden sm:flex">
+                          Responsive
+                        </Badge>
+                      </div>
+                      <div className="space-y-5">
+                        {displayGroup.ads.map((ad) =>
+                          ad.displayCreative ? (
+                            <GoogleDisplayAdPreview
+                              key={ad.displayCreative.id}
+                              template={ad.displayCreative}
+                              playlistImageUrl={analysis.playlist.imageUrl}
+                              playlistName={analysis.playlist.name}
+                            />
+                          ) : null
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Google API Payload */}
+                <Card>
+                  <CardHeader
+                    title="Google Ads API Payload"
+                    subtitle="Ready-to-use JSON for Google Ads API (Search + Display)"
+                    icon={<span>🔧</span>}
+                    action={
+                      <Button size="sm" variant="secondary" onClick={handleCopyGoogleJson}>
+                        📋 Copy All
+                      </Button>
+                    }
+                  />
+                  <pre className="bg-surface rounded-xl border border-surface-border p-4 overflow-auto text-xs text-gray-300 max-h-96 font-mono">
+                    {JSON.stringify(googleCampaign.googleAdsApiPayload, null, 2)}
                   </pre>
                 </Card>
               </>
