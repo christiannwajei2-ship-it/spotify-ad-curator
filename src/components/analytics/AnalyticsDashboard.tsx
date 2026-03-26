@@ -11,14 +11,17 @@ import { GrowthChart } from './GrowthChart';
 import { PlatformComparison } from './PlatformComparison';
 import { ROICalculator } from './ROICalculator';
 import { ExportButton } from './ExportButton';
+import { UpgradeModal } from '../payments/UpgradeModal';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useSubscription } from '../../hooks/useSubscription';
 import type { TimePeriod } from '../../services/analytics/types';
+import type { GatedFeature } from '../../services/payments/guards';
 
-const TIME_PERIODS: { value: TimePeriod; label: string }[] = [
+const TIME_PERIODS: { value: TimePeriod; label: string; requiredFeature?: GatedFeature }[] = [
   { value: '7d',  label: '7 Days' },
-  { value: '30d', label: '30 Days' },
-  { value: '90d', label: '90 Days' },
-  { value: 'all', label: 'All Time' },
+  { value: '30d', label: '30 Days', requiredFeature: 'analytics-30d' },
+  { value: '90d', label: '90 Days', requiredFeature: 'analytics-90d' },
+  { value: 'all', label: 'All Time', requiredFeature: 'analytics-90d' },
 ];
 
 type ChartSeries = 'impressions' | 'clicks' | 'spend' | 'conversions';
@@ -42,6 +45,15 @@ export const AnalyticsDashboard = () => {
     exportCSV,
     exportText,
   } = useAnalytics();
+
+  const {
+    canAccess,
+    upgradeModal,
+    openUpgradeModal,
+    closeUpgradeModal,
+    checkout,
+    isLoading: checkoutLoading,
+  } = useSubscription();
 
   const [activeSeries, setActiveSeries] = useState<ChartSeries[]>(['impressions', 'clicks', 'spend']);
 
@@ -79,28 +91,50 @@ export const AnalyticsDashboard = () => {
         <div className="flex items-center gap-3 flex-wrap">
           {/* Period selector */}
           <div className="flex bg-surface-elevated border border-surface-border rounded-xl overflow-hidden">
-            {TIME_PERIODS.map((tp) => (
-              <button
-                key={tp.value}
-                onClick={() => setPeriod(tp.value)}
-                className={clsx(
-                  'px-3 py-1.5 text-xs font-medium transition-colors duration-200',
-                  period === tp.value
-                    ? 'bg-brand-700 text-white'
-                    : 'text-gray-400 hover:text-white'
-                )}
-              >
-                {tp.label}
-              </button>
-            ))}
+            {TIME_PERIODS.map((tp) => {
+              const isLocked = tp.requiredFeature ? !canAccess(tp.requiredFeature) : false;
+              return (
+                <button
+                  key={tp.value}
+                  onClick={() => {
+                    if (isLocked && tp.requiredFeature) {
+                      openUpgradeModal(tp.requiredFeature);
+                      return;
+                    }
+                    setPeriod(tp.value);
+                  }}
+                  className={clsx(
+                    'px-3 py-1.5 text-xs font-medium transition-colors duration-200',
+                    period === tp.value
+                      ? 'bg-brand-700 text-white'
+                      : isLocked
+                        ? 'text-gray-600 hover:text-yellow-400'
+                        : 'text-gray-400 hover:text-white'
+                  )}
+                  title={isLocked ? 'Upgrade to Pro to unlock' : undefined}
+                >
+                  {tp.label}
+                  {isLocked && ' 🔒'}
+                </button>
+              );
+            })}
           </div>
 
           {/* Export */}
-          <ExportButton
-            onExportJSON={exportJSON}
-            onExportCSV={exportCSV}
-            onExportText={exportText}
-          />
+          {canAccess('export') ? (
+            <ExportButton
+              onExportJSON={exportJSON}
+              onExportCSV={exportCSV}
+              onExportText={exportText}
+            />
+          ) : (
+            <button
+              onClick={() => openUpgradeModal('export')}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border border-yellow-800 bg-yellow-900/20 text-yellow-300 hover:bg-yellow-900/30 transition-colors duration-200"
+            >
+              🔒 Export (Pro)
+            </button>
+          )}
         </div>
       </div>
 
@@ -249,5 +283,13 @@ export const AnalyticsDashboard = () => {
       </motion.div>
 
     </div>
+
+      <UpgradeModal
+        isOpen={upgradeModal.isOpen}
+        feature={upgradeModal.feature}
+        isLoading={checkoutLoading}
+        onUpgrade={(planId, period) => checkout(planId, period)}
+        onClose={closeUpgradeModal}
+      />
   );
 };
