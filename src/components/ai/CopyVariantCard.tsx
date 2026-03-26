@@ -4,7 +4,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { clsx } from 'clsx';
 import toast from 'react-hot-toast';
 import type { AICopyVariant, AdPlatformType } from '../../services/ai-copy/types';
 import { PLATFORM_CHAR_LIMITS, PLATFORM_LABELS } from '../../services/ai-copy/types';
