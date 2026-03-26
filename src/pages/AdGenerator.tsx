@@ -13,10 +13,11 @@ import { YouTubeAdPreview } from '../components/ads/YouTubeAdPreview';
 import { YouTubeCampaignBuilder } from '../components/ads/YouTubeCampaignBuilder';
 import { GoogleSearchAdPreview, GoogleDisplayAdPreview } from '../components/ads/GoogleAdPreview';
 import { GoogleCampaignBuilder } from '../components/ads/GoogleCampaignBuilder';
+import { AICopyGenerator } from '../components/ai/AICopyGenerator';
 import { copyToClipboard, downloadJson } from '../utils/helpers';
 import toast from 'react-hot-toast';
 
-type AdPlatform = 'meta' | 'tiktok' | 'youtube' | 'google';
+type AdPlatform = 'meta' | 'tiktok' | 'youtube' | 'google' | 'ai-copy';
 
 export const AdGenerator = () => {
   const { currentCampaign, analysis, setStep } = useAppStore();
@@ -186,6 +187,7 @@ export const AdGenerator = () => {
               { id: 'tiktok', label: '📱 TikTok Ads', desc: 'Short-form video' },
               { id: 'youtube', label: '📺 YouTube Ads', desc: 'Video campaigns' },
               { id: 'google', label: '🔍 Google Ads', desc: 'Search & Display' },
+              { id: 'ai-copy', label: '🤖 AI Copy', desc: 'Generate ad copy' },
             ] as { id: AdPlatform; label: string; desc: string }[]
           ).map((tab) => (
             <button
