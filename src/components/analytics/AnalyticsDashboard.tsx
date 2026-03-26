@@ -50,11 +50,13 @@ export const AnalyticsDashboard = () => {
   const series    = getTimeSeries('all');
 
   const toggleSeries = (key: ChartSeries) => {
-    setActiveSeries((prev) =>
-      prev.includes(key)
-        ? prev.length > 1 ? prev.filter((s) => s !== key) : prev
-        : [...prev, key]
-    );
+    setActiveSeries((prev) => {
+      if (prev.includes(key)) {
+        // Keep at least one series active
+        return prev.length > 1 ? prev.filter((s) => s !== key) : prev;
+      }
+      return [...prev, key];
+    });
   };
 
   return (

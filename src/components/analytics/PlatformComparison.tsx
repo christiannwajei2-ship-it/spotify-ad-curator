@@ -67,20 +67,15 @@ export const PlatformComparison = ({ platforms }: PlatformComparisonProps) => {
 
               {/* Metric cells */}
               {COLUMNS.map((col) => {
-                const val      = p[col.key] as number;
-                const isBest   = best[col.key as string] === p.platform;
-                const isHigher = !col.lowerIsBetter;
+                const val    = p[col.key] as number;
+                const isBest = best[col.key as string] === p.platform;
 
                 return (
                   <td key={col.key as string} className="py-3 px-2 text-right">
                     <span
                       className={clsx(
                         'font-medium',
-                        isBest
-                          ? isHigher
-                            ? 'text-green-400'
-                            : 'text-green-400'
-                          : 'text-gray-300'
+                        isBest ? 'text-green-400' : 'text-gray-300'
                       )}
                     >
                       {col.format(val)}
