@@ -75,14 +75,14 @@ export function getNextRunTime(rule: ScheduleRule, from: Date = new Date()): Dat
   candidate.setUTCSeconds(0, 0);
   candidate.setUTCHours(hour, minute);
 
-  const advanceByDays = (d: Date, days: number) => {
+  const advanceDateByDays = (d: Date, days: number) => {
     d.setUTCDate(d.getUTCDate() + days);
   };
 
   switch (frequency) {
     case 'daily': {
       // If the time has already passed today, schedule for tomorrow
-      if (candidate <= from) advanceByDays(candidate, 1);
+      if (candidate <= from) advanceDateByDays(candidate, 1);
       break;
     }
 
@@ -91,7 +91,7 @@ export function getNextRunTime(rule: ScheduleRule, from: Date = new Date()): Dat
       const currentDay = candidate.getUTCDay();
       let daysUntil = (targetDay - currentDay + 7) % 7;
       if (daysUntil === 0 && candidate <= from) daysUntil = 7;
-      advanceByDays(candidate, daysUntil);
+      advanceDateByDays(candidate, daysUntil);
       break;
     }
 
@@ -105,7 +105,7 @@ export function getNextRunTime(rule: ScheduleRule, from: Date = new Date()): Dat
         // Use nearest upcoming occurrence; biweekly = every 2 weeks
         // no adjustment needed for first occurrence
       }
-      advanceByDays(candidate, daysUntil2);
+      advanceDateByDays(candidate, daysUntil2);
       break;
     }
 
@@ -217,17 +217,17 @@ function pickRandom<T>(arr: T[]): T {
 }
 
 function simulateMetricsImprovement(before: MetricsSnapshot): MetricsSnapshot {
-  const ctrImprove = 1 + (Math.random() * 0.3);       // +0% to +30%
-  const roasImprove = 1 + (Math.random() * 0.25);      // +0% to +25%
-  const conversionImprove = 1 + (Math.random() * 0.2); // +0% to +20%
+  const ctrMultiplier = 1 + (Math.random() * 0.3);       // +0% to +30%
+  const roasMultiplier = 1 + (Math.random() * 0.25);      // +0% to +25%
+  const conversionMultiplier = 1 + (Math.random() * 0.2); // +0% to +20%
 
   return {
     impressions: Math.round(before.impressions * (1 + Math.random() * 0.1)),
-    clicks: Math.round(before.clicks * ctrImprove),
-    ctr: parseFloat((before.ctr * ctrImprove).toFixed(2)),
+    clicks: Math.round(before.clicks * ctrMultiplier),
+    ctr: parseFloat((before.ctr * ctrMultiplier).toFixed(2)),
     spend: parseFloat((before.spend * (1 + Math.random() * 0.15)).toFixed(2)),
-    roas: parseFloat((before.roas * roasImprove).toFixed(2)),
-    conversions: Math.round(before.conversions * conversionImprove),
+    roas: parseFloat((before.roas * roasMultiplier).toFixed(2)),
+    conversions: Math.round(before.conversions * conversionMultiplier),
   };
 }
 

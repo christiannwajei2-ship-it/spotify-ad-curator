@@ -130,7 +130,7 @@ export const SchedulerDashboard = () => {
     setEditingSchedule(null);
   };
 
-  const handlePauseAll = () => {
+  const handlePauseAllActive = () => {
     schedules
       .filter((s) => s.status === 'active')
       .forEach((s) => toggleSchedule(s.id));
@@ -148,7 +148,7 @@ export const SchedulerDashboard = () => {
         </div>
         <div className="flex items-center gap-2">
           {activeCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={handlePauseAll} className="text-xs">
+            <Button variant="ghost" size="sm" onClick={handlePauseAllActive} className="text-xs">
               ⏸ Pause All
             </Button>
           )}
