@@ -1,0 +1,94 @@
+import { motion } from 'framer-motion';
+import { useAppStore } from '../../store';
+import { Badge } from '../ui';
+
+interface NavItem {
+  label: string;
+  step: string;
+  icon: string;
+  requiresAnalysis?: boolean;
+}
+
+const navItems: NavItem[] = [
+  { label: 'Home', step: 'landing', icon: '🏠' },
+  { label: 'Analysis', step: 'dashboard', icon: '📊', requiresAnalysis: true },
+  { label: 'Targeting', step: 'targeting', icon: '🎯', requiresAnalysis: true },
+  { label: 'Ad Generator', step: 'ad-generator', icon: '📢', requiresAnalysis: true },
+  { label: 'History', step: 'history', icon: '📋' },
+];
+
+export const Header = () => {
+  const { currentStep, setStep, analysis, isDemoMode, setDemoMode, reset } = useAppStore();
+
+  const handleNavClick = (item: NavItem) => {
+    if (item.requiresAnalysis && !analysis) return;
+    setStep(item.step as Parameters<typeof setStep>[0]);
+  };
+
+  return (
+    <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-surface-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <button
+            onClick={() => { reset(); }}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-600 to-brand-800 rounded-lg flex items-center justify-center text-sm shadow-lg shadow-brand-900/40">
+              🎵
+            </div>
+            <span className="font-bold text-white text-sm hidden sm:block">
+              Spotify<span className="text-brand-400">AdCurator</span>
+            </span>
+          </button>
+
+          {/* Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isDisabled = item.requiresAnalysis && !analysis;
+              const isActive = currentStep === item.step;
+              return (
+                <button
+                  key={item.step}
+                  onClick={() => handleNavClick(item)}
+                  disabled={isDisabled}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200
+                    ${isActive
+                      ? 'bg-brand-900/60 text-brand-300 border border-brand-800'
+                      : isDisabled
+                        ? 'text-gray-600 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-white hover:bg-surface-elevated'
+                    }`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Demo toggle */}
+          <div className="flex items-center gap-3">
+            <motion.button
+              onClick={() => setDemoMode(!isDemoMode)}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200
+                ${isDemoMode
+                  ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800'
+                  : 'bg-surface-elevated text-gray-400 border-surface-border hover:text-white'
+                }`}
+            >
+              {isDemoMode ? '🎭 Demo' : '🔴 Live'}
+            </motion.button>
+
+            {analysis && (
+              <Badge variant="green" className="hidden sm:flex">
+                ✓ Analyzed
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
