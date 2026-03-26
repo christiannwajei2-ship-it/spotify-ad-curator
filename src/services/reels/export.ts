@@ -244,7 +244,7 @@ export function generateFFmpegScript(template: VideoTemplate): string {
     lines.push(
       `ffmpeg -i INPUT_VIDEO_${idx}.mp4 \\`,
       `  -ss ${startSec} -t ${durSec} \\`,
-      `  -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:${section.backgroundColorHex.replace('#', '0x')}" \\`,
+      `  -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:${section.backgroundColorHex}" \\`,
       `  -c:v libx264 -preset fast -crf 22 \\`,
       `  segment_${idx}.mp4`,
       ``
@@ -252,9 +252,12 @@ export function generateFFmpegScript(template: VideoTemplate): string {
   });
 
   lines.push(
-    `# Concatenate segments`,
-    template.sections.map((_, idx) => `file 'segment_${idx}.mp4'`).join('\n'),
+    `# Create concat list`,
+    `cat > concat_list.txt << 'EOF'`,
+    ...template.sections.map((_, idx) => `file 'segment_${idx}.mp4'`),
+    `EOF`,
     ``,
+    `# Concatenate segments`,
     `ffmpeg -f concat -safe 0 -i concat_list.txt -c copy "$OUTPUT"`,
     ``,
     `echo "Done! Output: $OUTPUT"`,

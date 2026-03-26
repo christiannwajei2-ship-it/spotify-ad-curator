@@ -36,8 +36,8 @@ function replacePlaceholders(text: string, tokens: Record<string, string>): stri
 }
 
 function buildTokens(analysis: PlaylistAnalysis): Record<string, string> {
-  const tracks = analysis.topArtists;
-  const topTrackNames = tracks.map((a) => a.name);
+  const artists = analysis.topArtists;
+  const artistNames = artists.map((a) => a.name);
 
   return {
     playlist_name: analysis.playlist.name,
@@ -45,15 +45,15 @@ function buildTokens(analysis: PlaylistAnalysis): Record<string, string> {
     total_duration: formatDuration(analysis.playlist.totalDurationMs),
     top_genre: analysis.topGenre,
     mood: getMoodLabel(analysis.topGenre),
-    artist_name: tracks[0]?.name ?? 'Featured Artist',
-    artist_1: tracks[0]?.name ?? 'Artist 1',
-    artist_2: tracks[1]?.name ?? 'Artist 2',
-    artist_3: tracks[2]?.name ?? 'Artist 3',
-    track_1_name: topTrackNames[0] ?? 'Track 1',
-    track_2_name: topTrackNames[1] ?? 'Track 2',
-    track_3_name: topTrackNames[2] ?? 'Track 3',
-    track_4_name: topTrackNames[3] ?? 'Track 4',
-    album_name: `${tracks[0]?.name ?? 'Artist'}'s Latest`,
+    artist_name: artistNames[0] ?? 'Featured Artist',
+    artist_1: artistNames[0] ?? 'Artist 1',
+    artist_2: artistNames[1] ?? 'Artist 2',
+    artist_3: artistNames[2] ?? 'Artist 3',
+    track_1_name: artistNames[0] ?? 'Track 1',
+    track_2_name: artistNames[1] ?? 'Track 2',
+    track_3_name: artistNames[2] ?? 'Track 3',
+    track_4_name: artistNames[3] ?? 'Track 4',
+    album_name: `${artistNames[0] ?? 'Artist'}'s Latest`,
     lyric_snippet: `A ${analysis.topGenre} moment you can feel`,
     genre_tag_1: analysis.topGenre.replace(/\s+/g, ''),
     genre_tag_2: (analysis.genres[1]?.genre ?? 'music').replace(/\s+/g, ''),
@@ -61,7 +61,7 @@ function buildTokens(analysis: PlaylistAnalysis): Record<string, string> {
     genre_tag_4: (analysis.genres[3]?.genre ?? 'trending').replace(/\s+/g, ''),
     event_date: 'Coming Soon',
     venue_name: 'Your City',
-    tour_name: `${tracks[0]?.name ?? 'Artist'} World Tour`,
+    tour_name: `${artistNames[0] ?? 'Artist'} World Tour`,
   };
 }
 

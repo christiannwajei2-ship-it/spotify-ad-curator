@@ -16,9 +16,10 @@ const TEXT_ANIMATIONS: TextOverlay['animation'][] = ['fade', 'slide', 'bounce', 
 interface TemplateEditorProps {
   template: VideoTemplate;
   onChange: (updated: VideoTemplate) => void;
+  onReset?: () => void;
 }
 
-export const TemplateEditor = ({ template, onChange }: TemplateEditorProps) => {
+export const TemplateEditor = ({ template, onChange, onReset }: TemplateEditorProps) => {
   const [activeSectionIdx, setActiveSectionIdx] = useState(0);
   const [activeOverlayIdx, setActiveOverlayIdx] = useState(0);
 
@@ -256,9 +257,11 @@ export const TemplateEditor = ({ template, onChange }: TemplateEditorProps) => {
       </Card>
 
       {/* Reset button */}
-      <Button variant="ghost" size="sm" onClick={() => onChange(template)}>
-        Reset Changes
-      </Button>
+      {onReset && (
+        <Button variant="ghost" size="sm" onClick={onReset}>
+          Reset Changes
+        </Button>
+      )}
     </div>
   );
 };

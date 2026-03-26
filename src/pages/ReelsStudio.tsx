@@ -119,7 +119,7 @@ export const ReelsStudio = () => {
             )}
           </div>
           <p className="text-sm text-gray-400">
-            Create scroll-stopping TikTok Reels, Instagram Reels &amp; YouTube Shorts for your music campaigns.
+            Create scroll-stopping TikTok Reels, Instagram Reels & YouTube Shorts for your music campaigns.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -258,11 +258,9 @@ export const ReelsStudio = () => {
                   <TemplateEditor
                     template={displayTemplate}
                     onChange={handleTemplateChange}
+                    onReset={resetCustomization}
                   />
 
-                  <Button variant="ghost" size="sm" onClick={resetCustomization}>
-                    ↺ Reset to Original
-                  </Button>
                 </motion.div>
               )}
 
