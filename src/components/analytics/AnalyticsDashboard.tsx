@@ -72,6 +72,7 @@ export const AnalyticsDashboard = () => {
   };
 
   return (
+    <>
     <div className="space-y-6">
 
       {/* ── Header ────────────────────────────────────── */}
@@ -291,5 +292,6 @@ export const AnalyticsDashboard = () => {
         onUpgrade={(planId, period) => checkout(planId, period)}
         onClose={closeUpgradeModal}
       />
+    </>
   );
 };

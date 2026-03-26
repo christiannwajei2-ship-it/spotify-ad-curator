@@ -27,7 +27,7 @@ export const AdGenerator = () => {
   const { tikTokCampaign, setTikTokCampaign, generate: generateTikTok, isLoading: tikTokLoading } = useTikTokAds();
   const { youtubeCampaign, setYouTubeCampaign, generate: generateYouTube, isLoading: youtubeLoading } = useYouTubeAds();
   const { googleCampaign, setGoogleCampaign, generate: generateGoogle, isLoading: googleLoading } = useGoogleAds();
-  const { canAccess, upgradeModal, upgradeMessage, openUpgradeModal, closeUpgradeModal, checkout, isLoading: checkoutLoading } = useSubscription();
+  const { canAccess, upgradeModal, openUpgradeModal, closeUpgradeModal, checkout, isLoading: checkoutLoading } = useSubscription();
   const [activePlatform, setActivePlatform] = useState<AdPlatform>('meta');
   const [tikTokBudget, setTikTokBudget] = useState(5);
   const [youtubeBudget, setYoutubeBudget] = useState(5);
@@ -194,6 +194,7 @@ export const AdGenerator = () => {
               </>
             )}
             <Button variant="ghost" onClick={() => setStep('analytics')}>📈 View Analytics</Button>
+            <Button variant="ghost" onClick={() => setStep('scheduler')}>⏰ Schedule Auto-Refresh</Button>
           </div>
         </motion.div>
 

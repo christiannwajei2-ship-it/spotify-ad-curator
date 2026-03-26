@@ -9,6 +9,7 @@ import { AdGenerator } from './pages/AdGenerator';
 import { History } from './pages/History';
 import { Analytics } from './pages/Analytics';
 import { Pricing } from './pages/Pricing';
+import { Scheduler } from './pages/Scheduler';
 
 function App() {
   const { currentStep, isLoading } = useAppStore();
@@ -30,6 +31,8 @@ function App() {
         return <Analytics />;
       case 'pricing':
         return <Pricing />;
+      case 'scheduler':
+        return <Scheduler />;
       default:
         return <Landing />;
     }

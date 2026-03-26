@@ -138,7 +138,8 @@ export type GatedFeature =
   | 'multi-campaign'
   | 'white-label'
   | 'api'
-  | 'team';
+  | 'team'
+  | 'scheduler';
 
 interface UpgradeMessage {
   title: string;
@@ -225,6 +226,12 @@ const UPGRADE_MESSAGES: Record<GatedFeature, UpgradeMessage> = {
     description: 'Invite up to 5 team members to collaborate on campaigns. Upgrade to Agency.',
     requiredTier: 'agency',
     cta: 'Go Agency',
+  },
+  'scheduler': {
+    title: 'Auto-Refresh Scheduler requires Pro',
+    description: 'Automate campaign optimizations on a schedule — refresh copy, pause losers, and boost winners automatically. Upgrade to Pro.',
+    requiredTier: 'pro',
+    cta: 'Upgrade to Pro',
   },
 };
 

@@ -3,6 +3,7 @@ import { useAppStore } from '../../store';
 import { Badge } from '../ui';
 import { SubscriptionBadge } from '../payments/SubscriptionBadge';
 import { useSubscription } from '../../hooks/useSubscription';
+import { useScheduler } from '../../hooks/useScheduler';
 
 interface NavItem {
   label: string;
@@ -17,6 +18,7 @@ const navItems: NavItem[] = [
   { label: 'Targeting', step: 'targeting', icon: '🎯', requiresAnalysis: true },
   { label: 'Ad Generator', step: 'ad-generator', icon: '📢', requiresAnalysis: true },
   { label: 'Analytics', step: 'analytics', icon: '📈' },
+  { label: 'Scheduler', step: 'scheduler', icon: '⏰' },
   { label: 'History', step: 'history', icon: '📋' },
   { label: 'Pricing', step: 'pricing', icon: '💳' },
 ];
@@ -24,6 +26,7 @@ const navItems: NavItem[] = [
 export const Header = () => {
   const { currentStep, setStep, analysis, isDemoMode, setDemoMode, reset } = useAppStore();
   const { currentTier, manageSubscription } = useSubscription();
+  const { activeCount } = useScheduler();
 
   const handleNavClick = (item: NavItem) => {
     if (item.requiresAnalysis && !analysis) return;
@@ -67,6 +70,11 @@ export const Header = () => {
                 >
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
+                  {item.step === 'scheduler' && activeCount > 0 && (
+                    <Badge variant="green" className="text-xs px-1.5 py-0.5 ml-0.5">
+                      {activeCount}
+                    </Badge>
+                  )}
                 </button>
               );
             })}
