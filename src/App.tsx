@@ -8,6 +8,7 @@ import { Targeting } from './pages/Targeting';
 import { AdGenerator } from './pages/AdGenerator';
 import { History } from './pages/History';
 import { Analytics } from './pages/Analytics';
+import { Pricing } from './pages/Pricing';
 
 function App() {
   const { currentStep, isLoading } = useAppStore();
@@ -27,6 +28,8 @@ function App() {
         return <History />;
       case 'analytics':
         return <Analytics />;
+      case 'pricing':
+        return <Pricing />;
       default:
         return <Landing />;
     }

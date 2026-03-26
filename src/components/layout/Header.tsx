@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { Badge } from '../ui';
+import { SubscriptionBadge } from '../payments/SubscriptionBadge';
+import { useSubscription } from '../../hooks/useSubscription';
 
 interface NavItem {
   label: string;
@@ -16,10 +18,12 @@ const navItems: NavItem[] = [
   { label: 'Ad Generator', step: 'ad-generator', icon: '📢', requiresAnalysis: true },
   { label: 'Analytics', step: 'analytics', icon: '📈' },
   { label: 'History', step: 'history', icon: '📋' },
+  { label: 'Pricing', step: 'pricing', icon: '💳' },
 ];
 
 export const Header = () => {
   const { currentStep, setStep, analysis, isDemoMode, setDemoMode, reset } = useAppStore();
+  const { currentTier, manageSubscription } = useSubscription();
 
   const handleNavClick = (item: NavItem) => {
     if (item.requiresAnalysis && !analysis) return;
@@ -87,6 +91,18 @@ export const Header = () => {
                 ✓ Analyzed
               </Badge>
             )}
+
+            <SubscriptionBadge
+              tier={currentTier}
+              onClick={() => {
+                if (currentTier === 'free') {
+                  setStep('pricing');
+                } else {
+                  manageSubscription();
+                }
+              }}
+              className="hidden sm:flex"
+            />
           </div>
         </div>
       </div>
