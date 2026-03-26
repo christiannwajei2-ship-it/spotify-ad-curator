@@ -176,6 +176,7 @@ export const AdGenerator = () => {
                 )}
               </>
             )}
+            <Button variant="ghost" onClick={() => setStep('analytics')}>📈 View Analytics</Button>
           </div>
         </motion.div>
 

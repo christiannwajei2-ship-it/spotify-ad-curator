@@ -14,6 +14,7 @@ const navItems: NavItem[] = [
   { label: 'Analysis', step: 'dashboard', icon: '📊', requiresAnalysis: true },
   { label: 'Targeting', step: 'targeting', icon: '🎯', requiresAnalysis: true },
   { label: 'Ad Generator', step: 'ad-generator', icon: '📢', requiresAnalysis: true },
+  { label: 'Analytics', step: 'analytics', icon: '📈' },
   { label: 'History', step: 'history', icon: '📋' },
 ];
 
