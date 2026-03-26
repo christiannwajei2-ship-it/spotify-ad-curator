@@ -238,7 +238,7 @@ export interface AdCampaign {
 // App State Types
 // ===================================================
 
-export type AppStep = 'landing' | 'analyzing' | 'dashboard' | 'targeting' | 'ad-generator' | 'history' | 'analytics' | 'pricing';
+export type AppStep = 'landing' | 'analyzing' | 'dashboard' | 'targeting' | 'ad-generator' | 'history' | 'analytics' | 'pricing' | 'scheduler';
 
 export interface AppState {
   currentStep: AppStep;

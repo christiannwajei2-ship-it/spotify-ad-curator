@@ -95,6 +95,8 @@ export const useSubscription = () => {
           return PLANS[currentTier]?.limits.canAccessApi ?? false;
         case 'team':
           return (PLANS[currentTier]?.limits.teamSeats ?? 1) > 1;
+        case 'scheduler':
+          return currentTier === 'pro' || currentTier === 'agency';
         default:
           return false;
       }
