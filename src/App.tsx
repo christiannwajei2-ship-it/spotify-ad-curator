@@ -7,6 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Targeting } from './pages/Targeting';
 import { AdGenerator } from './pages/AdGenerator';
 import { History } from './pages/History';
+import { Analytics } from './pages/Analytics';
 
 function App() {
   const { currentStep, isLoading } = useAppStore();
@@ -24,6 +25,8 @@ function App() {
         return <AdGenerator />;
       case 'history':
         return <History />;
+      case 'analytics':
+        return <Analytics />;
       default:
         return <Landing />;
     }
