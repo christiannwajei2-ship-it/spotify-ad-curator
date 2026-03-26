@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { Badge } from '../ui';
 import { SubscriptionBadge } from '../payments/SubscriptionBadge';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useScheduler } from '../../hooks/useScheduler';
+import { DemoModeToggle } from '../demo/DemoModeToggle';
 
 interface NavItem {
   label: string;
@@ -20,12 +20,13 @@ const navItems: NavItem[] = [
   { label: 'Analytics', step: 'analytics', icon: '📈' },
   { label: 'Scheduler', step: 'scheduler', icon: '⏰' },
   { label: 'Reels Studio', step: 'reels-studio', icon: '🎬' },
+  { label: 'Demo Hub', step: 'demo-hub', icon: '🎮' },
   { label: 'History', step: 'history', icon: '📋' },
   { label: 'Pricing', step: 'pricing', icon: '💳' },
 ];
 
 export const Header = () => {
-  const { currentStep, setStep, analysis, isDemoMode, setDemoMode, reset } = useAppStore();
+  const { currentStep, setStep, analysis, reset } = useAppStore();
   const { currentTier, manageSubscription } = useSubscription();
   const { activeCount } = useScheduler();
 
@@ -83,17 +84,7 @@ export const Header = () => {
 
           {/* Demo toggle */}
           <div className="flex items-center gap-3">
-            <motion.button
-              onClick={() => setDemoMode(!isDemoMode)}
-              whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200
-                ${isDemoMode
-                  ? 'bg-yellow-900/30 text-yellow-300 border-yellow-800'
-                  : 'bg-surface-elevated text-gray-400 border-surface-border hover:text-white'
-                }`}
-            >
-              {isDemoMode ? '🎭 Demo' : '🔴 Live'}
-            </motion.button>
+            <DemoModeToggle />
 
             {analysis && (
               <Badge variant="green" className="hidden sm:flex">
