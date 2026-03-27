@@ -4,6 +4,7 @@ import { SubscriptionBadge } from '../payments/SubscriptionBadge';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useScheduler } from '../../hooks/useScheduler';
 import { DemoModeToggle } from '../demo/DemoModeToggle';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 interface NavItem {
   label: string;
@@ -23,6 +24,7 @@ const navItems: NavItem[] = [
   { label: 'Demo Hub', step: 'demo-hub', icon: '🎮' },
   { label: 'History', step: 'history', icon: '📋' },
   { label: 'Pricing', step: 'pricing', icon: '💳' },
+  { label: 'Notifications', step: 'notification-settings', icon: '🔔' },
 ];
 
 export const Header = () => {
@@ -82,8 +84,9 @@ export const Header = () => {
             })}
           </nav>
 
-          {/* Demo toggle */}
+          {/* Demo toggle + Notification bell */}
           <div className="flex items-center gap-3">
+            <NotificationBell />
             <DemoModeToggle />
 
             {analysis && (

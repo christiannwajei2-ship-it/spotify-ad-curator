@@ -12,7 +12,9 @@ import { Pricing } from './pages/Pricing';
 import { Scheduler } from './pages/Scheduler';
 import { ReelsStudio } from './pages/ReelsStudio';
 import { DemoHub } from './pages/DemoHub';
+import { NotificationSettings } from './pages/NotificationSettings';
 import { OnboardingWizard, WalkthroughOverlay } from './components/demo';
+import { NotificationToastContainer } from './components/notifications';
 
 function App() {
   const { currentStep, isLoading } = useAppStore();
@@ -40,6 +42,8 @@ function App() {
         return <ReelsStudio />;
       case 'demo-hub':
         return <DemoHub />;
+      case 'notification-settings':
+        return <NotificationSettings />;
       default:
         return <Landing />;
     }
@@ -69,6 +73,9 @@ function App() {
       {/* Demo system */}
       <OnboardingWizard />
       <WalkthroughOverlay />
+
+      {/* Notification toasts */}
+      <NotificationToastContainer />
 
       <Toaster
         position="bottom-right"
