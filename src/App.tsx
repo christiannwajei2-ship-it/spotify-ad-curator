@@ -2,6 +2,7 @@ import { Toaster } from 'react-hot-toast';
 import { useAppStore } from './store';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { BottomTabBar } from './components/layout/BottomTabBar';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
 import { Targeting } from './pages/Targeting';
@@ -13,6 +14,7 @@ import { Scheduler } from './pages/Scheduler';
 import { ReelsStudio } from './pages/ReelsStudio';
 import { DemoHub } from './pages/DemoHub';
 import { NotificationSettings } from './pages/NotificationSettings';
+import { CampaignBuilderPage } from './pages/CampaignBuilderPage';
 import { OnboardingWizard, WalkthroughOverlay } from './components/demo';
 import { NotificationToastContainer } from './components/notifications';
 
@@ -44,6 +46,8 @@ function App() {
         return <DemoHub />;
       case 'notification-settings':
         return <NotificationSettings />;
+      case 'campaign-builder':
+        return <CampaignBuilderPage />;
       default:
         return <Landing />;
     }
@@ -67,8 +71,9 @@ function App() {
       )}
 
       <Header />
-      <main>{renderPage()}</main>
+      <main className="pb-16 md:pb-0">{renderPage()}</main>
       <Footer />
+      <BottomTabBar />
 
       {/* Demo system */}
       <OnboardingWizard />
