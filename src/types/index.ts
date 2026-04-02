@@ -238,7 +238,21 @@ export interface AdCampaign {
 // App State Types
 // ===================================================
 
-export type AppStep = 'landing' | 'analyzing' | 'dashboard' | 'targeting' | 'ad-generator' | 'history' | 'analytics' | 'pricing' | 'scheduler' | 'reels-studio' | 'demo-hub' | 'campaign-builder';
+// The union below includes BOTH 'notification-settings' and 'campaign-builder'
+export type AppStep =
+  | 'landing'
+  | 'analyzing'
+  | 'dashboard'
+  | 'targeting'
+  | 'ad-generator'
+  | 'history'
+  | 'analytics'
+  | 'pricing'
+  | 'scheduler'
+  | 'reels-studio'
+  | 'demo-hub'
+  | 'notification-settings'
+  | 'campaign-builder';
 
 export interface AppState {
   currentStep: AppStep;

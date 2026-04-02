@@ -5,6 +5,7 @@ import { SubscriptionBadge } from '../payments/SubscriptionBadge';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useScheduler } from '../../hooks/useScheduler';
 import { DemoModeToggle } from '../demo/DemoModeToggle';
+import { NotificationBell } from '../notifications/NotificationBell';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { MobileNav } from './MobileNav';
 
@@ -27,6 +28,7 @@ const navItems: NavItem[] = [
   { label: 'Demo Hub', step: 'demo-hub', icon: '🎮' },
   { label: 'History', step: 'history', icon: '📋' },
   { label: 'Pricing', step: 'pricing', icon: '💳' },
+  { label: 'Notifications', step: 'notification-settings', icon: '🔔' },
 ];
 
 export const Header = () => {
@@ -108,14 +110,13 @@ export const Header = () => {
             {/* Right side controls */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <NotificationBell />
               <DemoModeToggle />
-
               {analysis && (
                 <Badge variant="green" className="hidden sm:flex">
                   ✓ Analyzed
                 </Badge>
               )}
-
               <SubscriptionBadge
                 tier={currentTier}
                 onClick={() => {
@@ -127,7 +128,6 @@ export const Header = () => {
                 }}
                 className="hidden sm:flex"
               />
-
               {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileNavOpen(true)}
