@@ -195,6 +195,7 @@ export const AdGenerator = () => {
             )}
             <Button variant="ghost" onClick={() => setStep('analytics')}>📈 View Analytics</Button>
             <Button variant="ghost" onClick={() => setStep('scheduler')}>⏰ Schedule Auto-Refresh</Button>
+            <Button variant="ghost" onClick={() => setStep('reels-studio')}>🎬 Create Reels/Shorts</Button>
           </div>
         </motion.div>
 
