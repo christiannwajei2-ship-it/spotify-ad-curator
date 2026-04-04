@@ -580,6 +580,11 @@ export const AdGenerator = () => {
             )}
           </>
         )}
+
+        {/* ======================== AI COPY TAB ======================== */}
+        {activePlatform === 'ai-copy' && (
+          <AICopyGenerator />
+        )}
       </div>
     </div>
   );

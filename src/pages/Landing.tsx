@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../store';
 import { useSpotifyAnalysis } from '../hooks/useSpotifyAnalysis';
-import { Button, Input } from '../components/ui';
+import { useAppleMusic } from '../hooks/useAppleMusic';
+import { Button } from '../components/ui';
+import { LinkDetector } from '../components/apple-music';
+import { detectPlatform } from '../services/apple-music/parser';
 import { DEMO_PLAYLIST_URL } from '../utils/constants';
 
 const stats = [
@@ -38,13 +41,30 @@ const features = [
 export const Landing = () => {
   const [inputUrl, setInputUrl] = useState('');
   const { setSpotifyUrl, isDemoMode } = useAppStore();
-  const { analyze, isLoading } = useSpotifyAnalysis();
+  const { analyze, isLoading: spotifyLoading } = useSpotifyAnalysis();
+  const { analyzeLink: analyzeAppleMusic, isLoading: appleLoading } = useAppleMusic();
+  const isLoading = spotifyLoading || appleLoading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const url = isDemoMode ? DEMO_PLAYLIST_URL : inputUrl;
     setSpotifyUrl(url);
-    await analyze(url);
+    const platform = detectPlatform(url);
+    if (platform === 'apple-music') {
+      await analyzeAppleMusic(url);
+    } else {
+      await analyze(url);
+    }
+  };
+
+  const handleUrlSubmit = async (url: string) => {
+    setSpotifyUrl(url);
+    const platform = detectPlatform(url);
+    if (platform === 'apple-music') {
+      await analyzeAppleMusic(url);
+    } else {
+      await analyze(url);
+    }
   };
 
   const handleTryDemo = async () => {
@@ -90,12 +110,11 @@ export const Landing = () => {
             <form onSubmit={handleSubmit} className="mt-10 max-w-2xl mx-auto">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
-                  <Input
-                    placeholder={isDemoMode ? '🎭 Demo mode — click Analyze to see it in action' : 'https://open.spotify.com/playlist/...'}
+                  <LinkDetector
                     value={inputUrl}
-                    onChange={(e) => setInputUrl(e.target.value)}
-                    leftIcon={<span>🔗</span>}
-                    className="text-base py-4"
+                    onChange={setInputUrl}
+                    onSubmit={handleUrlSubmit}
+                    isLoading={isLoading}
                     disabled={isDemoMode}
                   />
                 </div>
@@ -111,7 +130,7 @@ export const Landing = () => {
 
               {!isDemoMode && (
                 <p className="mt-3 text-sm text-gray-500">
-                  Supports: playlist links, artist links, and profile links
+                  Supports: Spotify playlists, artists · Apple Music playlists, albums
                 </p>
               )}
             </form>
