@@ -5,6 +5,7 @@ import { useAdGenerator } from '../hooks/useAdGenerator';
 import { useTikTokAds } from '../hooks/useTikTokAds';
 import { useYouTubeAds } from '../hooks/useYouTubeAds';
 import { useGoogleAds } from '../hooks/useGoogleAds';
+import { useSubscription } from '../hooks/useSubscription';
 import { Button, Card, CardHeader, Badge } from '../components/ui';
 import { AdTemplate } from '../components/ads/AdTemplate';
 import { TikTokAdPreview } from '../components/ads/TikTokAdPreview';
@@ -14,6 +15,7 @@ import { YouTubeCampaignBuilder } from '../components/ads/YouTubeCampaignBuilder
 import { GoogleSearchAdPreview, GoogleDisplayAdPreview } from '../components/ads/GoogleAdPreview';
 import { GoogleCampaignBuilder } from '../components/ads/GoogleCampaignBuilder';
 import { AICopyGenerator } from '../components/ai/AICopyGenerator';
+import { UpgradeModal } from '../components/payments/UpgradeModal';
 import { copyToClipboard, downloadJson } from '../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -25,10 +27,25 @@ export const AdGenerator = () => {
   const { tikTokCampaign, setTikTokCampaign, generate: generateTikTok, isLoading: tikTokLoading } = useTikTokAds();
   const { youtubeCampaign, setYouTubeCampaign, generate: generateYouTube, isLoading: youtubeLoading } = useYouTubeAds();
   const { googleCampaign, setGoogleCampaign, generate: generateGoogle, isLoading: googleLoading } = useGoogleAds();
+  const { canAccess, upgradeModal, openUpgradeModal, closeUpgradeModal, checkout, isLoading: checkoutLoading } = useSubscription();
   const [activePlatform, setActivePlatform] = useState<AdPlatform>('meta');
   const [tikTokBudget, setTikTokBudget] = useState(5);
   const [youtubeBudget, setYoutubeBudget] = useState(5);
   const [googleBudget, setGoogleBudget] = useState(3);
+
+  const handlePlatformClick = (platform: AdPlatform) => {
+    const gatedMap: Record<string, 'tiktok' | 'youtube' | 'google-search'> = {
+      tiktok: 'tiktok',
+      youtube: 'youtube',
+      google: 'google-search',
+    };
+    const gated = gatedMap[platform];
+    if (gated && !canAccess(gated)) {
+      openUpgradeModal(gated);
+      return;
+    }
+    setActivePlatform(platform);
+  };
 
   if (!currentCampaign || !analysis) {
     return (
@@ -176,30 +193,35 @@ export const AdGenerator = () => {
                 )}
               </>
             )}
+            <Button variant="ghost" onClick={() => setStep('analytics')}>📈 View Analytics</Button>
+            <Button variant="ghost" onClick={() => setStep('scheduler')}>⏰ Schedule Auto-Refresh</Button>
           </div>
         </motion.div>
 
         {/* Platform Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-surface-border pb-4">
+        <div className="flex gap-2 mb-8 border-b border-surface-border pb-4 flex-wrap">
           {(
           [
-              { id: 'meta', label: '📘 Meta Ads', desc: 'Facebook & Instagram' },
-              { id: 'tiktok', label: '📱 TikTok Ads', desc: 'Short-form video' },
-              { id: 'youtube', label: '📺 YouTube Ads', desc: 'Video campaigns' },
-              { id: 'google', label: '🔍 Google Ads', desc: 'Search & Display' },
-              { id: 'ai-copy', label: '🤖 AI Copy', desc: 'Generate ad copy' },
-            ] as { id: AdPlatform; label: string; desc: string }[]
+              { id: 'meta', label: '📘 Meta Ads', desc: 'Facebook & Instagram', gated: false },
+              { id: 'tiktok', label: '📱 TikTok Ads', desc: 'Short-form video', gated: !canAccess('tiktok') },
+              { id: 'youtube', label: '📺 YouTube Ads', desc: 'Video campaigns', gated: !canAccess('youtube') },
+              { id: 'google', label: '🔍 Google Ads', desc: 'Search & Display', gated: !canAccess('google-search') },
+              { id: 'ai-copy', label: '🤖 AI Copy', desc: 'Generate ad copy', gated: false },
+            ] as { id: AdPlatform; label: string; desc: string; gated: boolean }[]
           ).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActivePlatform(tab.id)}
-              className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+              onClick={() => handlePlatformClick(tab.id)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                 activePlatform === tab.id
                   ? 'bg-brand-600 border-brand-500 text-white shadow-lg shadow-brand-900/30'
-                  : 'bg-surface border-surface-border text-gray-400 hover:text-white hover:border-brand-700'
+                  : tab.gated
+                    ? 'bg-surface border-surface-border text-gray-500 hover:text-gray-300 hover:border-yellow-700'
+                    : 'bg-surface border-surface-border text-gray-400 hover:text-white hover:border-brand-700'
               }`}
             >
               {tab.label}
+              {tab.gated && <span className="text-yellow-500 text-xs">🔒</span>}
               <span className="hidden sm:inline text-xs ml-1 opacity-70">— {tab.desc}</span>
             </button>
           ))}
@@ -586,6 +608,15 @@ export const AdGenerator = () => {
           <AICopyGenerator />
         )}
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={upgradeModal.isOpen}
+        feature={upgradeModal.feature}
+        isLoading={checkoutLoading}
+        onUpgrade={(planId, period) => checkout(planId, period)}
+        onClose={closeUpgradeModal}
+      />
     </div>
   );
 };
